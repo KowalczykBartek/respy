@@ -19,7 +19,7 @@ public class ParsingHandler extends ByteToMessageDecoder {
         msg.markWriterIndex();
 
         try {
-            Resp3Response response = resp3Parser.process(msg);
+            Resp3Response response = resp3Parser.doProcess(msg);
             out.add(response);
         } catch (Exception ex) {
             if (LOG.isDebugEnabled()) {

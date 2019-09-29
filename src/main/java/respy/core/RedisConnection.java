@@ -28,6 +28,11 @@ public class RedisConnection {
     private volatile Channel channel;
     private final Bootstrap bootstrap;
 
+    /**
+     * For now, there is no strict behaviour defined.
+     */
+    private volatile Consumer<ConnectionState> connectionStateChangeHandler = t -> {
+    };
     private final ChannelFuture channelFuture;
 
     private boolean connected; // no need for volatile, always accessed from the same thread.
@@ -65,7 +70,6 @@ public class RedisConnection {
         }, 1, TimeUnit.SECONDS);
     }
 
-
     private void doConnect(ChannelFuture channelFuture) {
         channelFuture.addListener(result -> {
             if (result.isSuccess()) {
@@ -76,6 +80,7 @@ public class RedisConnection {
                             //If we are here - for now it means OK and RESP3 is supported
                             LOG.info("Got response for HELLO3 message {}", rsp);
                             connected = true;
+                            connectionStateChangeHandler.accept(ConnectionState.CONNECTED);
                         })
                         .exceptionally(ex -> {
                             LOG.error("HELLO message completed exceptionally {}", ex.getMessage());
@@ -92,6 +97,7 @@ public class RedisConnection {
     private void setUpCloseFuture() {
         channel.closeFuture().addListener(listener -> {
             connected = false;
+            connectionStateChangeHandler.accept(ConnectionState.CONNECTION_BROKEN);
             LOG.error("Connection closed - scheduling retry");
             scheduleReconnect();
         });
@@ -99,6 +105,10 @@ public class RedisConnection {
 
     public void setPushResponseHandler(Consumer<Resp3PushResponse> pushResponseHandler) {
         eventLoopGroup.execute(() -> dispatcher.setPushResponseHandler(pushResponseHandler));
+    }
+
+    public void setConnectionStateChangeHandler(Consumer<ConnectionState> connectionStateChangeHandler) {
+        this.connectionStateChangeHandler = connectionStateChangeHandler;
     }
 
     public CompletableFuture<Resp3SimpleResponse> query(String query) {

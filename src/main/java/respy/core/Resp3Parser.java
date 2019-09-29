@@ -9,31 +9,31 @@ import java.util.Map;
 
 public class Resp3Parser {
 
-    public Resp3Response process(ByteBuf byteBuf) {
+    public Resp3Response doProcess(ByteBuf byteBuf) {
         Resp3Response resp3Response;
 
         byte current = byteBuf.getByte(0); //read, but do not modify index
 
         if (current == '*') {
-            Resp3Object resp3Object = process0(byteBuf);
+            Resp3Object resp3Object = process(byteBuf);
             resp3Response = new Resp3SimpleResponse(resp3Object);
         } else if (current == '$') {
-            Resp3Object resp3Object = process0(byteBuf);
+            Resp3Object resp3Object = process(byteBuf);
             resp3Response = new Resp3SimpleResponse(resp3Object);
         } else if (current == '#') {
-            Resp3Object resp3Object = process0(byteBuf);
+            Resp3Object resp3Object = process(byteBuf);
             resp3Response = new Resp3SimpleResponse(resp3Object);
         } else if (current == ':') {
-            Resp3Object resp3Object = process0(byteBuf);
+            Resp3Object resp3Object = process(byteBuf);
             resp3Response = new Resp3SimpleResponse(resp3Object);
         } else if (current == '+') {
-            Resp3Object resp3Object = process0(byteBuf);
+            Resp3Object resp3Object = process(byteBuf);
             resp3Response = new Resp3SimpleResponse(resp3Object);
         } else if (current == '%') {
-            Resp3Object resp3Object = process0(byteBuf);
+            Resp3Object resp3Object = process(byteBuf);
             resp3Response = new Resp3SimpleResponse(resp3Object);
         } else if (current == '>') {
-            Resp3Object resp3Object = process0(byteBuf);
+            Resp3Object resp3Object = process(byteBuf);
             resp3Response = new Resp3PushResponse(resp3Object);
         } else if(current == '-') {
             //Error is special case, i will parse it here.
@@ -48,7 +48,7 @@ public class Resp3Parser {
         return resp3Response;
     }
 
-    public Resp3Object process0(ByteBuf byteBuf) {
+    public Resp3Object process(ByteBuf byteBuf) {
         byte current = byteBuf.readByte();
         if (current == '*' || current == '>') {
             return new Resp3Object(processArray(byteBuf), null);
