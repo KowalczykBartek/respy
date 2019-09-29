@@ -3,13 +3,13 @@ package respy.core;
 import java.util.Objects;
 
 public class Resp3PushResponse implements Resp3Response {
-    private final Resp3Object object;
+    private final Object object;
 
-    public Resp3PushResponse(Resp3Object object) {
+    public Resp3PushResponse(Object object) {
         this.object = object;
     }
 
-    public Resp3Object getObject() {
+    public Object getObject() {
         return object;
     }
 

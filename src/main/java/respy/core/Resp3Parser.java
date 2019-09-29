@@ -15,27 +15,27 @@ public class Resp3Parser {
         byte current = byteBuf.getByte(0); //read, but do not modify index
 
         if (current == '*') {
-            Resp3Object resp3Object = process(byteBuf);
-            resp3Response = new Resp3SimpleResponse(resp3Object);
+            Object object = process(byteBuf);
+            resp3Response = new Resp3SimpleResponse(object);
         } else if (current == '$') {
-            Resp3Object resp3Object = process(byteBuf);
-            resp3Response = new Resp3SimpleResponse(resp3Object);
+            Object object = process(byteBuf);
+            resp3Response = new Resp3SimpleResponse(object);
         } else if (current == '#') {
-            Resp3Object resp3Object = process(byteBuf);
-            resp3Response = new Resp3SimpleResponse(resp3Object);
+            Object object = process(byteBuf);
+            resp3Response = new Resp3SimpleResponse(object);
         } else if (current == ':') {
-            Resp3Object resp3Object = process(byteBuf);
-            resp3Response = new Resp3SimpleResponse(resp3Object);
+            Object object = process(byteBuf);
+            resp3Response = new Resp3SimpleResponse(object);
         } else if (current == '+') {
-            Resp3Object resp3Object = process(byteBuf);
-            resp3Response = new Resp3SimpleResponse(resp3Object);
+            Object object = process(byteBuf);
+            resp3Response = new Resp3SimpleResponse(object);
         } else if (current == '%') {
-            Resp3Object resp3Object = process(byteBuf);
-            resp3Response = new Resp3SimpleResponse(resp3Object);
+            Object object = process(byteBuf);
+            resp3Response = new Resp3SimpleResponse(object);
         } else if (current == '>') {
-            Resp3Object resp3Object = process(byteBuf);
-            resp3Response = new Resp3PushResponse(resp3Object);
-        } else if(current == '-') {
+            Object object = process(byteBuf);
+            resp3Response = new Resp3PushResponse(object);
+        } else if (current == '-') {
             //Error is special case, i will parse it here.
             byte bt = byteBuf.readByte();
             byte[] errorMsg = getBytesUntilCRLF(byteBuf);
@@ -48,10 +48,10 @@ public class Resp3Parser {
         return resp3Response;
     }
 
-    public Resp3Object process(ByteBuf byteBuf) {
+    public Object process(ByteBuf byteBuf) {
         byte current = byteBuf.readByte();
         if (current == '*' || current == '>') {
-            return new Resp3Object(processArray(byteBuf), null);
+            return processArray(byteBuf);
         } else if (current == '$') {
             //simple string
             int length = getInt(byteBuf);
@@ -59,19 +59,19 @@ public class Resp3Parser {
             byte[] simpleString = new byte[length];
             byteBuf.readBytes(simpleString);
             ignoreTrailingCRLF(byteBuf);
-            return new Resp3Object((new String(simpleString)), null);
+            return new String(simpleString);
         } else if (current == '#') {
             byte booleanValue = byteBuf.readByte();
             ignoreTrailingCRLF(byteBuf);
-            return new Resp3Object(booleanValue != 'f', null);
+            return booleanValue;
         } else if (current == ':') {
             long value = getLong(byteBuf);
             ignoreTrailingCRLF(byteBuf);
-            return new Resp3Object(value, null);
+            return value;
         } else if (current == '+') {
             byte[] almostString = getBytesUntilCRLF(byteBuf);
             ignoreTrailingCRLF(byteBuf);
-            return new Resp3Object(new String(almostString), null);
+            return new String(almostString);
         } else if (current == '%') {
             int mapLength = getInt(byteBuf);
             ignoreTrailingCRLF(byteBuf);
@@ -81,7 +81,7 @@ public class Resp3Parser {
                 Object value = process(byteBuf);
                 map.put(key, value);
             }
-            return new Resp3Object(map, null);
+            return map;
         } else {
             throw new RuntimeException("Mi scusi !");
         }

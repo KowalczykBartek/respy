@@ -4,13 +4,13 @@ import java.util.Objects;
 
 public class Resp3SimpleResponse implements Resp3Response {
 
-    private final Resp3Object object;
+    private final Object object;
 
-    public Resp3SimpleResponse(Resp3Object object) {
+    public Resp3SimpleResponse(Object object) {
         this.object = object;
     }
 
-    public Resp3Object getObject() {
+    public Object getObject() {
         return object;
     }
 

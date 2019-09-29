@@ -12,9 +12,7 @@ public class Main {
     public static void main(String... args) throws InterruptedException {
         RedisConnection redisConnection = new RedisConnection("127.0.0.1", 6379);
         CountDownLatch countDownLatch = new CountDownLatch(1);
-
         redisConnection.setConnectionStateChangeHandler(t -> countDownLatch.countDown());
-
         countDownLatch.await();
 
         redisConnection.setPushResponseHandler(resp3PushResponse -> LOG.info("Received PUSH notification {}", resp3PushResponse));
