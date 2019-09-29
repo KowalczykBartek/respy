@@ -10,7 +10,7 @@ import java.util.Map;
 public class Resp3Parser {
 
     public Resp3Response process(ByteBuf byteBuf) {
-        Resp3Response resp3Response = null;
+        Resp3Response resp3Response;
 
         byte current = byteBuf.getByte(0); //read, but do not modify index
 
@@ -35,6 +35,12 @@ public class Resp3Parser {
         } else if (current == '>') {
             Resp3Object resp3Object = process0(byteBuf);
             resp3Response = new Resp3PushResponse(resp3Object);
+        } else if(current == '-') {
+            //Error is special case, i will parse it here.
+            byte bt = byteBuf.readByte();
+            byte[] errorMsg = getBytesUntilCRLF(byteBuf);
+            ignoreTrailingCRLF(byteBuf);
+            resp3Response = new Resp3ErrorResponse(new String(errorMsg));
         } else {
             throw new RuntimeException("Mi scusi !");
         }

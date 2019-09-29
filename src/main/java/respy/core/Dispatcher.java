@@ -1,5 +1,6 @@
 package respy.core;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
+@ChannelHandler.Sharable
 public class Dispatcher extends SimpleChannelInboundHandler<Resp3Response> {
 
     private final static Logger LOG = LogManager.getLogger();
@@ -31,7 +33,12 @@ public class Dispatcher extends SimpleChannelInboundHandler<Resp3Response> {
 
         CompletableFuture<Resp3SimpleResponse> resp = queue.poll();
         if (resp != null) {
-            resp.complete((Resp3SimpleResponse) msg);
+            if (msg instanceof Resp3ErrorResponse) {
+                String cause = ((Resp3ErrorResponse) msg).getMsg();
+                resp.completeExceptionally(new RuntimeException(cause));
+            } else {
+                resp.complete((Resp3SimpleResponse) msg);
+            }
         } else {
             LOG.error("No handler for received response");
         }
