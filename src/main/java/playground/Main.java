@@ -11,16 +11,17 @@ public class Main {
 
     public static void main(String... args) throws InterruptedException {
         RedisConnection redisConnection = new RedisConnection("127.0.0.1", 6379);
+
         CountDownLatch countDownLatch = new CountDownLatch(1);
         redisConnection.setConnectionStateChangeHandler(t -> countDownLatch.countDown());
         countDownLatch.await();
 
         redisConnection.setPushResponseHandler(resp3PushResponse -> LOG.info("Received PUSH notification {}", resp3PushResponse));
 
-        redisConnection.query("SUBSCRIBE first\r\n")//
+        redisConnection.query("CLIENT TRACKING on\r\n")//
                 .thenCompose(response -> {
                     LOG.info("response {}", response);
-                    return redisConnection.query("HSET A B C\r\n");
+                    return redisConnection.query("GET a\r\n");
                 })
                 .thenAccept(response -> {
                     LOG.info("response {}", response);
