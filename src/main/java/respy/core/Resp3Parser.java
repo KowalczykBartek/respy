@@ -41,6 +41,12 @@ public class Resp3Parser {
             byte[] errorMsg = getBytesUntilCRLF(byteBuf);
             ignoreTrailingCRLF(byteBuf);
             resp3Response = new Resp3ErrorResponse(new String(errorMsg));
+        } else if (current == '_') {
+            //handle null
+            byte bt = byteBuf.readByte();
+            byte[] errorMsg = getBytesUntilCRLF(byteBuf);
+            ignoreTrailingCRLF(byteBuf);
+            resp3Response = new Resp3SimpleResponse(null);
         } else {
             throw new RuntimeException("Mi scusi !");
         }

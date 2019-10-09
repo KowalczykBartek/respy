@@ -98,8 +98,4 @@ public class CRCUtils {
     public static long calculateHashSlot(byte[] bytes) {
       return crc64(bytes, 0, bytes.length) & ((1 << 24) - 1);
     }
-
-    public static void main(String... args) {
-        System.out.println(calculateHashSlot("a".getBytes()));
-    }
 }

@@ -55,7 +55,7 @@ public class RedisConnection {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) {
-                        ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
+                        //ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
                         ch.pipeline().addLast(new ParsingHandler());
                         ch.pipeline().addLast(dispatcher);
                     }
