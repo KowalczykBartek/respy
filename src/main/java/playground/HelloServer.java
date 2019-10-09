@@ -64,6 +64,13 @@ public class HelloServer {
                                 }
                                 request.response().setStatusCode(200).end("{\"value\":\"" + resp.getObject() + "\"}");
                             });
+                        })
+                        .exceptionally(ex -> {
+                            context.runOnContext((no) -> {
+                                cache.invalidate();
+                                request.response().setStatusCode(500).end("{\"error\":\"something bad happened\"}");
+                            });
+                            return null;
                         });
             }
         });
