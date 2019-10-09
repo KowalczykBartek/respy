@@ -48,13 +48,14 @@ public class HelloServer {
         server.requestHandler(request -> {
             Context context = Vertx.currentContext();
 
-            String value = (String) cache.get("hellomessage");
+            String key = request.path();
+            String value = (String) cache.get(key);
 
             if (value != null) {
                 LOG.info("Got cache hit, with value {}", value);
                 request.response().setStatusCode(200).end("{\"value\":\"" + value + "\"}");
             } else {
-                redisConnection.query("GET hellomessage\r\n")
+                redisConnection.query("GET " + key + "\r\n")
                         .thenAccept(resp -> {
                             context.runOnContext((no) -> {
                                 if (resp.getObject() != null) {
