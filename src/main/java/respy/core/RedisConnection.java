@@ -45,7 +45,7 @@ public class RedisConnection {
 
         //NEVER GREATER THAN 1
         this.eventLoopGroup = new NioEventLoopGroup(1);
-        this.dispatcher = new Dispatcher();
+        this.dispatcher = new Dispatcher(eventLoopGroup);
         Bootstrap b = new Bootstrap();
 
         //FIXME support TLS
@@ -116,6 +116,9 @@ public class RedisConnection {
     public CompletableFuture<Resp3SimpleResponse> query(String query) {
         final CompletableFuture<Resp3SimpleResponse> resultFuture = new CompletableFuture<>();
 
+        /*
+         * FIXME in case when request enter redis and connection break - nothing will complete future.
+         */
         eventLoopGroup.execute(() -> {
             if (!connected) {
                 resultFuture.completeExceptionally(new RuntimeException("Not connected"));
