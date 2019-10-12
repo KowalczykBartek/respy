@@ -11,7 +11,6 @@ public class Resp3Parser {
 
     public Resp3Response doProcess(ByteBuf byteBuf) {
         Resp3Response resp3Response;
-
         byte current = byteBuf.getByte(0); //read, but do not modify index
 
         if (current == '*') {

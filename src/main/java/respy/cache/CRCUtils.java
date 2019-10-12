@@ -89,7 +89,7 @@ public class CRCUtils {
         }
         return sum;
     }
-
+    
     /**
      * Calculate invalidation key (CRC64 + Redis's slot size)
      * @param bytes

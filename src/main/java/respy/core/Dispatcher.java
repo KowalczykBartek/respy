@@ -42,6 +42,13 @@ public class Dispatcher extends SimpleChannelInboundHandler<Resp3Response> {
      */
     private void setupTimeoutJob() {
         eventLoopGroup.scheduleAtFixedRate(() -> {
+
+            /*
+             * We cannot wait for the request infinitely, but we also cannot remove the object
+             * from the queue - FIXME in case of situation when queue of waiting objects grow to X we have to
+             * brake connection.
+             */
+
             Iterator<RedisQueryRequest> iterator = queue.iterator();
             int i = 0;
             long timeNow = System.currentTimeMillis();
@@ -59,7 +66,9 @@ public class Dispatcher extends SimpleChannelInboundHandler<Resp3Response> {
                 long whenRequestStarted = current.getRequestTimeStart();
                 long requestTimeUntilNow = timeNow - whenRequestStarted;
                 if (requestTimeUntilNow >= 1000) {
+                    LOG.error("Timeouted request detected");
                     current.markTimeouted();
+                    current.getCompletableFuture().completeExceptionally(new TimeoutException("Timeout occurred."));
                 }
 
                 i++;
